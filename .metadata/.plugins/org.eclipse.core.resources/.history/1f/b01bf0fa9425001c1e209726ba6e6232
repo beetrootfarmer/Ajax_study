@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<title>Ajax사용 - bootstrap table</title>
+</head>
+<body>
+	<h1>주소록</h1>
+	<div class="table-responsive">
+		<button type="button" onclick="reqList();">조회</button>
+		<table class="table">
+			<tr>
+				<th>번호</th>
+				<th>이름</th>
+				<th>전화</th>
+				<th>주소</th>
+			</tr>
+		</table>
+	</div>
+	<script>
+	
+	function reqList() {
+		// ajax 호출 
+		$.ajax({
+			// 요청 서비스 url 지정
+			url : "/contact/list.do",
+			// 메소드 타입 지정
+			type : "GET",
+			// 요청 시 서버로 전달할 데이터 지정
+			data : { pageno : 1, pagesize : 5},
+			// 요청 성공 시 동작할 콜백 함수 지정
+			success :function(data) {
+				console.log(data);
+				// p 요소에 서버로부터 응답받은 데이터 표출
+				$("#resp").html(data);
+			}
+		});
+	}
+	function delList() {
+		//p요소 초기화
+		$("#resp").html("");
+	}
+		
+	</script>
+</body>
+</html>
