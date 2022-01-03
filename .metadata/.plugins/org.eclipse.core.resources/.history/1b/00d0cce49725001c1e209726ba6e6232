@@ -1,0 +1,150 @@
+package com.ajaxstudy.contact.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ajaxstudy.contact.domain.Contact;
+import com.ajaxstudy.contact.domain.ContactList;
+
+/*
+연락처 리스트를 저장하고 있는 클래스
+DB에 연결하지 않고 컬렉션 객체에 주소데이터 보관
+연락처 추가, 수정, 삭제, 조회 기능 구현
+*/
+public class SampleDAO {
+	//연락처 목록에서 사용할 이름 목록 변수 선언
+	private static String nameList = "고수,공유,권상우,권율,김범,김수현," +
+			 "김우빈,현빈,남주혁,마동석,박보검,박서준," +
+			 "박해일,박해진,박형식,서강준,서인국,소지섭," +
+			 "송강호,신구,안재욱,양택조,옥택연,원기준," +
+			 "원빈,유오성,유지태,윤계상,윤상현,이계인," +
+			 "이광기,이덕화,이동욱,이병헌,이원종,이준기," +
+			 "인교진,임창정,임채무,전무송,전국환,전노민," +
+			 "정우성,정보석,정웅인,조인성,조정석,조진웅," +
+			 "주지훈,지성,지창욱,지진희,지현우,주원," +
+			 "차인표,차승원,최다니엘,최민수,최민식,최불암," +
+			 "하석진,현빈,홍광호,황정민";
+	//����ó ����� ���� ���� ����
+	private static List<Contact> contacts;
+	//���� �Ϸù�ȣ�� ���� ���� ����
+	private static long nextNo = 0;
+	
+	//������ �ʱ�ȭ(����ó ���� ��� ����)
+	static {
+		//�̸� ��� �迭 ����
+		String[] names = nameList.split(",");
+		//����ó ��� ���� ���� �ʱ�ȭ
+		contacts = new ArrayList<Contact>();
+		for(int i = 0; i < names.length; i++) {
+			nextNo++; //�Ϸù�ȣ 1���� ����
+			String tel = "010-1111-22" + (i+10);
+			String address = "����Ư����";
+			//����ó ���� ����
+			Contact c = new Contact(nextNo, names[i], tel, address);
+			//������ ������ ����ó ������ ����ó ��Ͽ� �ϳ��� ����
+			//contacts.get(i)�� �ϳ��� ���� �� �ְ�
+			//contacts.get(i)�� ������ {1, ���, 010-1111-2210, ����Ư����}
+			contacts.add(i, c);
+		}
+	}
+	
+	//��ü ����ó ��� ��ȸ
+	public static ContactList getContacts() {
+		//static ��Ͽ��� ������ ����ó ������� �� ContactList ��ü ����
+		//(���� ������ 0, ������ ������ 0, ��� ������ contacts.size(), List<Contact> contacts)
+		ContactList cList = new ContactList(0, 0, contacts.size(), contacts);
+		return cList;
+	}
+	
+	//Ư�� �������� �������� ���Ե� ����ó ���� ��û(�Ϻ� ����ó ������ ����)
+	public static ContactList getContacts(int pageno, int pagesize) {
+		//������ ����ó ����� ������ġ ����
+		int startIndex = (pageno-1) * pagesize;
+		//������ ����ó ����� ����ġ ����
+		int endIndex = startIndex + pagesize;
+		
+		List<Contact> temps = null;
+		
+		//����ó ����� ������ ��� ��û�� ����
+		if(startIndex > contacts.size() -1 || startIndex < 0 || pagesize <1) {
+			//�� ��ü�� ����
+			temps = new ArrayList<Contact>();
+		}
+		//��ȿ�� ������ ��û�� ����
+		else {
+			//���� ���� ��ġ�� ����ó ����� ũ�⸦ �Ѿ��
+			//����ġ�� ����ó ����� ������ �ε����� �����Ѵ�.
+			if(endIndex > contacts.size()) {
+				endIndex = contacts.size();
+			}
+			//������ġ�� ����ġ�� �ش��ϴ� ����ó ��� �κ��� ����
+			temps = contacts.subList(startIndex, endIndex);
+		}
+		//������ ������ ����ó ����� �������� �� ����ó ��� ��ü ����
+		//(���� ������ pageno, ������ ������ pagesize, ��� ������ contacts.size(), List<Contact> temps)
+		ContactList cList = new ContactList(pageno, pagesize, contacts.size(), temps);
+		
+		return cList;
+	}
+	
+	//����ó ��Ͽ� ����ó �߰�
+	public static void addContact(Contact c) {
+		nextNo++;
+		c.setNo(nextNo);
+		contacts.add(0, c);
+	}
+	
+	//�ش� �Ϸù�ȣ�� ����ó ����
+	public static void deleteContact(long no) {
+		//������ ����ó�� ����
+		int count = 0;
+		for(int i = 0; i < contacts.size(); i++) {
+			Contact c = contacts.get(i);
+			//����ó�� �Ϸù�ȣ�� ���޹��� �Ϸù�ȣ�� ���� �� ��Ͽ��� ����
+			if(c.getNo() == no) {
+				contacts.remove(i);
+				count++;
+				break;
+			}
+		}
+	}
+	
+	//����ó ����
+	//������ ����ó ���� �Ű������� ����
+	public static int updateContact(Contact c) {
+		long no = c.getNo();
+		//������ ����ó�� ����
+		int count = 0;
+		for(int i = 0; i < contacts.size(); i++) {
+			//������ ����ó ��Ͽ��� ����ó �ϳ��� ������ ��
+			Contact con = contacts.get(i);
+			//�Ű������� ���� ����ó�� �Ϸù�ȣ�� ���� ����ó ��Ͽ��� ������ ����ó�� �Ϸù�ȣ�� ������
+			if(con.getNo() == no) {
+				//���� ����ó ������ �Ű������� ���� ����ó ������ �����Ѵ�.
+				contacts.set(i, c);
+				count++;
+				break;
+			}
+		}
+		//�ϳ��� �����Ǳ� ������ 1�� ����
+		return count;
+	}
+	
+	//�������� ����ó �� ���� ����
+	//������ ����ó ��� �Ű������� ����
+	public static int updateBatch(ContactList contactList) {
+		//������ ����ó�� ����
+		int count = 0;
+		//�Ű��������� pageNo, pageSize, totalCount�� ������ ����ó ��ϸ� ����
+		List<Contact> list = contactList.getContacts();
+		if(list.size() > 0) {
+			//����ó ��Ͽ��� ����ó ���� �ϳ��� ����
+			for(Contact c : list) {
+				//���� �޼ҵ� ȣ��
+				SampleDAO.updateContact(c);
+				count++;
+			}
+		}
+		return count;
+	}
+}
